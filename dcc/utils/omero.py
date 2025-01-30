@@ -43,7 +43,7 @@ def access_parent(node):
             f"{node.name} is in the root group of the {node.store.path} store."
         )
     else:
-        return zarr.open(store=store_path, path=os.path.split(node_path)[0], mode="a")
+        return zarr.open(store=store_path, path=os.path.split(node_path.rstrip('/'))[0], mode="a")
     
     
 def insert_omero_metadata(src : str,
