@@ -22,6 +22,13 @@ class ModelMetadata(BaseModel):
     spatial_dims: Optional[int] = Field(None, description="2 or 3")
     in_channels: Optional[int] = None
     out_channels: Optional[int] = None
+    iteration: Optional[int] = None
+    input_voxel_size: Optional[List[int]] = Field(
+        None, description="Comma-separated values, e.g., 8,8,8"
+    )
+    output_voxel_size: Optional[List[int]] = Field(
+        None, description="Comma-separated values, e.g., 8,8,8"
+    )
     channels_names: Optional[List[str]] = Field(
         None, description="Comma-separated values, e.g., 'CT, PET'"
     )
@@ -39,6 +46,7 @@ class ModelMetadata(BaseModel):
 def generate_readme(metadata: ModelMetadata):
     readme_content = f"""
     # {metadata.model_name} Model
+    iteration: {metadata.iteration}
 
     ## Description
     {metadata.description}
@@ -62,12 +70,19 @@ def generate_readme(metadata: ModelMetadata):
     return readme_content
 
 
-def export_metadata(metadata: ModelMetadata):
-    prompt_for_missing_fields(metadata)
+def export_metadata(metadata: ModelMetadata, overwrite: bool = False):
+    
     export_folder = get_export_folder()
     result_folder = os.path.join(export_folder, metadata.model_name)
+    if os.path.exists(result_folder) and not overwrite:
+        result = click.confirm(
+            f"Folder {result_folder} already exists. Do you want to overwrite it?",
+        )
+        if not result:
+            return
+    prompt_for_missing_fields(metadata)
     os.makedirs(result_folder, exist_ok=True)
-    output_file = os.path.join(result_folder, f"{metadata.model_name}_metadata.json")
+    output_file = os.path.join(result_folder, "metadata.json")
     with open(output_file, "w") as f:
         json.dump(metadata.dict(), f, indent=4)
     click.echo(f"Metadata saved to {output_file}")

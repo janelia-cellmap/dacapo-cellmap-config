@@ -80,7 +80,7 @@ packages = ["dcc"]
 
 [project.scripts]
 dacapo = "dcc.cli:cli"
-dcc_dacapo = "dcc.model_export.export_model:export_dacapo_model"
+dcc_dacapo = "dcc.model_export.dacapo_model:export_dacapo_model"
 
 # https://github.com/charliermarsh/ruff
 [tool.ruff]
