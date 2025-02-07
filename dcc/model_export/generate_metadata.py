@@ -80,7 +80,7 @@ def export_metadata(metadata: ModelMetadata, overwrite: bool = False):
         )
         if not result:
             return
-    prompt_for_missing_fields(metadata)
+    metadata = prompt_for_missing_fields(metadata)
     os.makedirs(result_folder, exist_ok=True)
     output_file = os.path.join(result_folder, "metadata.json")
     with open(output_file, "w") as f:
@@ -111,6 +111,8 @@ def prompt_for_missing_fields(metadata: ModelMetadata):
             else:
                 value = click.prompt(prompt_text, type=str)
             setattr(metadata, field_name, value)
+
+    return metadata
 
 
 @click.command()
