@@ -3,9 +3,13 @@ import click
 from typing import List, Optional
 from pydantic import BaseModel, Field
 import os
+import dcc.model_export.config as c
 
 
 def get_export_folder():
+    if c.DCC_EXPORT_FOLDER is not None:
+        return c.DCC_EXPORT_FOLDER
+    print("DCC_EXPORT_FOLDER is not set in the config, checking environment variables...")
     folder = os.getenv("DCC_EXPORT_FOLDER")
     if not folder:
         folder = input(
@@ -36,6 +40,12 @@ class ModelMetadata(BaseModel):
         None, description="Comma-separated values, e.g., 1,1,96,96,96"
     )
     output_shape: Optional[List[int]] = Field(
+        None, description="Comma-separated values, e.g., 1,2,96,96,96"
+    )
+    inference_input_shape: Optional[List[int]] = Field(
+        None, description="Comma-separated values, e.g., 1,1,96,96,96"
+    )
+    inference_output_shape: Optional[List[int]] = Field(
         None, description="Comma-separated values, e.g., 1,2,96,96,96"
     )
     author: Optional[str] = None

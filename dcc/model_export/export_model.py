@@ -13,13 +13,13 @@ def export_torch_model(model, input_shape, folder_result):
     ts_file = os.path.join(folder_result, "model.ts")
 
     # Export to TorchScript
-    torch.save(model, ts_file)
-    print(f"Model saved to {ts_file}")
+    torch.save(model, pt_file)
+    print(f"Model saved to {pt_file}")
 
     dummy_input = torch.rand(input_shape)
     scripted_model = torch.jit.trace(model, dummy_input)
-    scripted_model.save(pt_file)
-    print(f"Model saved to {pt_file}")
+    scripted_model.save(ts_file)
+    print(f"Model saved to {ts_file}")
 
     # Export to ONNX
     torch.onnx.export(
