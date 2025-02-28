@@ -20,37 +20,23 @@ def get_export_folder():
 
 
 class ModelMetadata(BaseModel):
-    model_name: Optional[str] = None
-    model_type: Optional[str] = Field(None, description="UNet or DenseNet121")
-    framework: Optional[str] = Field(None, description="MONAI or PyTorch")
-    spatial_dims: Optional[int] = Field(None, description="2 or 3")
-    in_channels: Optional[int] = None
-    out_channels: Optional[int] = None
-    iteration: Optional[int] = None
-    input_voxel_size: Optional[List[int]] = Field(
-        None, description="Comma-separated values, e.g., 8,8,8"
-    )
-    output_voxel_size: Optional[List[int]] = Field(
-        None, description="Comma-separated values, e.g., 8,8,8"
-    )
-    channels_names: Optional[List[str]] = Field(
-        None, description="Comma-separated values, e.g., 'CT, PET'"
-    )
-    input_shape: Optional[List[int]] = Field(
-        None, description="Comma-separated values, e.g., 1,1,96,96,96"
-    )
-    output_shape: Optional[List[int]] = Field(
-        None, description="Comma-separated values, e.g., 1,2,96,96,96"
-    )
-    inference_input_shape: Optional[List[int]] = Field(
-        None, description="Comma-separated values, e.g., 1,1,96,96,96"
-    )
-    inference_output_shape: Optional[List[int]] = Field(
-        None, description="Comma-separated values, e.g., 1,2,96,96,96"
-    )
-    author: Optional[str] = None
-    description: Optional[str] = None
-    version: Optional[str] = "1.0.0"
+    model_name: Optional[str] = Field(None, description="Name of the model")
+    model_type: Optional[str] = Field(None, description="Type of the model, e.g., UNet or DenseNet121")
+    framework: Optional[str] = Field(None, description="Framework used, e.g., MONAI or PyTorch")
+    spatial_dims: Optional[int] = Field(None, description="Number of spatial dimensions, e.g., 2 or 3")
+    in_channels: Optional[int] = Field(None, description="Number of input channels")
+    out_channels: Optional[int] = Field(None, description="Number of output channels")
+    iteration: Optional[int] = Field(None, description="Iteration number")
+    input_voxel_size: Optional[List[int]] = Field(None, description="Input voxel size as comma-separated values, e.g., 8,8,8")
+    output_voxel_size: Optional[List[int]] = Field(None, description="Output voxel size as comma-separated values, e.g., 8,8,8")
+    channels_names: Optional[List[str]] = Field(None, description="Names of the channels as comma-separated values, e.g., 'CT, PET'")
+    input_shape: Optional[List[int]] = Field(None, description="Input shape as comma-separated values, e.g., 1,1,96,96,96")
+    output_shape: Optional[List[int]] = Field(None, description="Output shape as comma-separated values, e.g., 1,2,96,96,96")
+    inference_input_shape: Optional[List[int]] = Field(None, description="Inference input shape as comma-separated values, e.g., 1,1,96,96,96")
+    inference_output_shape: Optional[List[int]] = Field(None, description="Inference output shape as comma-separated values, e.g., 1,2,96,96,96")
+    author: Optional[str] = Field(None, description="Author of the model")
+    description: Optional[str] = Field(None, description="Description of the model")
+    version: Optional[str] = Field("1.0.0", description="Version of the model")
 
 
 def generate_readme(metadata: ModelMetadata):
@@ -107,20 +93,24 @@ def prompt_for_missing_fields(metadata: ModelMetadata):
     for field_name, field in metadata.__fields__.items():
         value = getattr(metadata, field_name)
         if value is None:
-            prompt_text = (
-                field.field_info.description or f"Enter {field_name.replace('_', ' ')}"
-            )
-            if field_name in ["channels_names", "input_shape", "output_shape"]:
-                user_input = click.prompt(prompt_text, type=str)
-                if field_name == "channels_names":
-                    value = [item.strip() for item in user_input.split(",")]
+            try:
+                prompt_text = (
+                field.description or f"Enter {field_name.replace('_', ' ')}"
+                )
+
+                if field_name in ["channels_names", "input_shape", "output_shape"]:
+                    user_input = click.prompt(prompt_text, type=str)
+                    if field_name == "channels_names":
+                        value = [item.strip() for item in user_input.split(",")]
+                    else:
+                        value = [int(item) for item in user_input.split(",")]
+                elif field.type_ == int:
+                    value = click.prompt(prompt_text, type=int)
                 else:
-                    value = [int(item) for item in user_input.split(",")]
-            elif field.type_ == int:
-                value = click.prompt(prompt_text, type=int)
-            else:
-                value = click.prompt(prompt_text, type=str)
-            setattr(metadata, field_name, value)
+                    value = click.prompt(prompt_text, type=str)
+                setattr(metadata, field_name, value)
+            except Exception as e:
+                raise Exception(f"Field {field_name} is missing a description. {e}")
 
     return metadata
 

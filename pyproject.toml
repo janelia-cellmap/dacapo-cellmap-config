@@ -25,7 +25,6 @@ classifiers = [
 dynamic = ["version"]
 dependencies = [
         "dacapo-ml",
-        "fibsem_tools",
         ]
 
 # extras
