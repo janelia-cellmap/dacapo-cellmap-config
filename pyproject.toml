@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 
 # https://peps.python.org/pep-0621/
 [project]
-name = "dacapo-cellmap"
+name = "dcc"
 description = "CellMap specific configuration for Dacapo."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -25,7 +25,6 @@ classifiers = [
 dynamic = ["version"]
 dependencies = [
         "dacapo-ml",
-        "fibsem_tools",
         ]
 
 # extras
@@ -80,7 +79,7 @@ packages = ["dcc"]
 
 [project.scripts]
 dacapo = "dcc.cli:cli"
-dcc_dacapo = "dcc.model_export.export_model:export_dacapo_model"
+dcc_dacapo = "dcc.model_export.dacapo_model:export_dacapo_model"
 
 # https://github.com/charliermarsh/ruff
 [tool.ruff]
